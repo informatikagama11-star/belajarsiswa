@@ -26,6 +26,16 @@
         <div class="animate-spin rounded-full h-16 w-16 border-4 border-indigo-500 border-t-transparent mb-4"></div>
         <p class="text-lg font-semibold tracking-wide">Menghubungkan ke CollabClass Server...</p>
         <p class="text-sm text-slate-400 mt-1">Menyiapkan enkripsi data & koneksi real-time</p>
+        
+        <!-- Tombol Penyelamat jika koneksi Firebase terkendala -->
+        <div id="loading-fallback" class="hidden mt-6 text-center max-w-xs px-4 animate-fade-in">
+            <p class="text-xs text-amber-300 mb-3 leading-relaxed">
+                Koneksi lambat atau Anonymous Auth belum diaktifkan di Firebase Console Anda.
+            </p>
+            <button id="bypass-loading-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20">
+                Gunakan Mode Demo Offline
+            </button>
+        </div>
     </div>
 
     <!-- Toast Notification -->
@@ -493,6 +503,17 @@
         let selectedGroupIdToGrade = null;
         let selectedAdminClassFilter = 'ALL';
 
+        // Helper to hide loading screen safely
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
         // Enforce Authentication FIRST before query (RULE 3)
         async function authenticate() {
             try {
@@ -503,7 +524,9 @@
                 }
             } catch (err) {
                 console.error("Firebase Authentication Error", err);
-                showToast("Koneksi gagal terotentikasi ke server.", true);
+                showToast("Autentikasi Firebase gagal. Menggunakan mode luring.", true);
+                hideLoadingOverlay();
+                showScreen('auth-screen');
             }
         }
 
@@ -513,15 +536,14 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                // Dismiss initial loading overlay smoothly
-                document.getElementById('loading-overlay').classList.add('opacity-0');
-                setTimeout(() => {
-                    document.getElementById('loading-overlay').classList.add('hidden');
-                }, 300);
+                hideLoadingOverlay();
                 
                 // Set default display auth screen
                 showScreen('auth-screen');
                 initMasterGroupsListener();
+            } else {
+                hideLoadingOverlay();
+                showScreen('auth-screen');
             }
         });
 
@@ -1511,6 +1533,22 @@
                 fbText.textContent = "Lakukan pengerjaan terlebih dahulu dan kumpulkan tautan agar dinilai oleh Guru.";
             }
         }
+
+        // Tampilkan tombol bypass jika koneksi ke Firebase memakan waktu lebih dari 4 detik
+        setTimeout(() => {
+            const fallbackDiv = document.getElementById('loading-fallback');
+            const overlay = document.getElementById('loading-overlay');
+            if (fallbackDiv && overlay && !overlay.classList.contains('hidden')) {
+                fallbackDiv.classList.remove('hidden');
+            }
+        }, 4000);
+
+        // Pasang aksi klik tombol bypass/demo offline
+        document.getElementById('bypass-loading-btn').addEventListener('click', () => {
+            hideLoadingOverlay();
+            showScreen('auth-screen');
+            showToast("Masuk menggunakan Mode Demo Offline.", false);
+        });
 
     </script>
 </body>
