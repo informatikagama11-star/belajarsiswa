@@ -472,10 +472,11 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // Globals provided by environment fallback to custom user config if undefined
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'collabclass-rt-system-99';
+        // Globals provided by environment fallback
+        const appId = 'collabclass-rt-system-99';
         
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        // Konfigurasi Firebase Anda secara langsung
+        const firebaseConfig = {
             apiKey: "AIzaSyD2x7o4-febDOd7IzanNwvuCMTQntGY8mI",
             authDomain: "e-penugasansiswa.firebaseapp.com",
             databaseURL: "https://e-penugasansiswa-default-rtdb.asia-southeast1.firebasedatabase.app",
